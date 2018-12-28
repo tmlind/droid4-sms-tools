@@ -1,0 +1,23 @@
+Droid 4 SMS Tools
+
+Minimal tools for Droid 4 to read SMS in PDU format from the MDM6600
+modem using /dev/motmdm9 character device with Ruby pdu_tools.
+
+To install, install ruby and then gem install pdu_tools.
+
+The droid4-sms-read.rb reads messages from the modem and copies them
+in email format to ~/Maildir/INBOX.sms/new and then acks the received
+SMS message.
+
+If started with a PDU encoded SMS as a command line parameter, it just
+decodes the PDU and shows it.
+
+Sending SMS currently needs to be done with ModemManager mmcli until the
+PDU format needed for /dev/motmdm3 character device is unraveled. So for
+now, please see mmcli --help-messaging on how to first create a new SMS
+on the modmem with mmcli --messaging-create-sms, and then how to send
+it with mmcli --send option.
+
+Note that using USB keeps the SoC from entering deeper idle states,
+so you probably want to unbind or unload all the USB devices when not
+in use, or at least autosuspend them and the connected devices via sysfs.
