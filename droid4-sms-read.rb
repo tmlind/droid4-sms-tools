@@ -30,8 +30,14 @@ def handle_message(pdu, save)
   decoder = PDUTools::Decoder.new pdu, :ms_to_sc
   message_part = decoder.decode
 
+  if message_part.timestamp
+    seconds = message_part.timestamp.strftime '%c'
+  else
+    seconds = 0
+  end
+
   decoded = sprintf "From %s@%s  %s\n", message_part.address, $device,
-                    message_part.timestamp.strftime('%c')
+                    seconds
   decoded += sprintf "From: %s\n", message_part.address
   decoded += sprintf "Date: %s\n",  message_part.timestamp
   decoded += sprintf "Subject: SMS received via %s\n", $device
