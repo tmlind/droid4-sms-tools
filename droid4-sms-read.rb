@@ -127,14 +127,12 @@ def read_messages()
 
   fd = File.open devname, "r+"
   loop do
-    rs, ws, es = IO.select([fd], [fd], [fd], 10)
+    rs, ws, es = IO.select([fd], nil, [fd], 10)
     if rs
       rs.each do |f|
         data = f.readpartial 1024
         handle_modem fd, data
       end
-    elsif ws
-      printf "Write ready %s\n", devname
     elsif es
       printf "Error reading %s\n", devname
     else
