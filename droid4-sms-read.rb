@@ -50,9 +50,9 @@ def handle_message(pdu, save)
     return 0
   end
 
-  filename = sprintf "%s/%s/%i.sms.%s,S=%i",
+  filename = sprintf "%s/%s/%i-%f.sms.%s,S=%i",
                      $maildir, "new", message_part.timestamp.to_i,
-                     $device, decoded.size
+                     Time.now.to_f, $device, decoded.size
 
   if !Dir.exists?($maildir)
     return -1
@@ -79,10 +79,15 @@ def handle_modem(fd, data)
     line.gsub! /\r$/, ''
     line.gsub! /\n$/, ''
 
+    # Skip empty line?
+    if line.size == 0
+      next
+    end
+
     # Is it an AT command response?
     if line =~ /^AT\+/ || line =~/^\+/
       printf "Command returned %s\n", line
-      next
+      return
     end
 
     # Is it a notification?
