@@ -20,6 +20,10 @@ SMS message.
 If started with a PDU encoded SMS as a command line parameter, it just
 decodes the PDU and shows it.
 
+Note that the charset should be set to UTF-8 for special characters at
+least for mutt. This can be done with set send_charset="us-ascii:utf-8"
+in .muttrc.
+
 Sending SMS can also be done with ModemManager mmcli. If you prefer to do
 that, please see mmcli --help-messaging on how to first create a new SMS
 on the modmem with mmcli --messaging-create-sms, and then how to send
