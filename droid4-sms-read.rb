@@ -16,6 +16,7 @@ require "pdu_tools"
 
 $device = "motmdm9"
 $maildir = "#{Dir.home}/Maildir/INBOX.sms"
+$aliases = "#{Dir.home}/aliases"
 $arg0 = ARGV[0]
 
 def print_help()
@@ -24,6 +25,30 @@ def print_help()
   printf "copies SMS into %s if it exists, and then acks the SMS\n",
          $maildir
   exit 0
+end
+
+def get_name_by_number(phone_number)
+  email = ""
+
+  fd = File.open $aliases, "r:UTF-8"
+  fd.each_line { |line|
+    if !line.valid_encoding?
+      printf "Invalid UTF-8 for %s", line
+      next
+    end
+    first,email = line.split("<")
+    if email
+      phone,last = email.split(">")
+      if phone == phone_number
+        first,nick,*elements = line.split(" ")
+        email = elements.join(" ")
+        break
+      end
+    end
+  }
+  fd.close
+
+  return email
 end
 
 def handle_message(pdu, save)
@@ -36,12 +61,33 @@ def handle_message(pdu, save)
     seconds = 0
   end
 
-  decoded = sprintf "From %s@%s  %s\n", message_part.address, $device,
-                    seconds
-  decoded += sprintf "From: %s\n", message_part.address
+  name = get_name_by_number(message_part.address)
+  decoded = ""
+  email = ""
+
+  # Try to get email address in aliases
+  if name && name != ""
+    first,email = name.split("<")
+    if email && email != ""
+      email,last = email.split(">")
+      decoded = sprintf "From %s@%s  %s\n", email, $device,
+                        seconds
+      decoded += sprintf "From: %s\n", name
+    end
+  end
+
+  # Not found in aliases
+  if decoded == ""
+    decoded = sprintf "From %s@%s  %s\n", message_part.address, $device,
+                      seconds
+    decoded += sprintf "From: %s\n", message_part.address
+  end
+
   decoded += sprintf "Date: %s\n",  message_part.timestamp
   decoded += sprintf "Subject: SMS received via %s\n", $device
-  decoded += sprintf "Message-ID: <%s>\n\n", pdu
+  decoded += sprintf "Message-ID: <%s>\n", pdu
+  decoded += sprintf "In-Reply-To: <%s@%s>\n\n",
+		     message_part.address, $device
   decoded += message_part.body
 
   printf "%s\n", decoded
