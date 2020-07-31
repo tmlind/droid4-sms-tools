@@ -30,7 +30,7 @@ def send_pdu(pdu)
   end
 
   fd = File.open devname, "r+"
-  fd.write "U1234AT+GCMGS=\n"
+  fd.write "U1234AT+GCMGS=\r"
   fd.flush
   cont = sprintf "U%s%c", mot_fmt, 0x1a
   fd.write cont

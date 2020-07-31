@@ -153,7 +153,7 @@ def handle_modem(fd, data)
     else
       # REVISIT: Why does Android use AT+CNMA=0,0 sometimes?
       printf "Acking received SMS\n"
-      fd.write "U1234AT+GCNMA=1\n"
+      fd.write "U1234AT+GCNMA=1\r"
       fd.flush
     end
   end
