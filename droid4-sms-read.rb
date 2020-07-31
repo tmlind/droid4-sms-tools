@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 # encoding: utf-8
 #
-# Parses SMS messages in PDU format from droid 4 /dev/motmdm9 device
+# Parses SMS messages in PDU format from droid 4 /dev/gsmtty9 device
 # and copies them into a Maildir
 #
 # If called with a PDU format SMS as the parameter, just decodes the PDU
@@ -14,14 +14,14 @@
 
 require "pdu_tools"
 
-$device = "motmdm9"
+$device = "gsmtty9"
 $maildir = "#{Dir.home}/Maildir/INBOX.sms"
 $aliases = "#{Dir.home}/aliases"
 $arg0 = ARGV[0]
 
 def print_help()
   printf "Usage: %s [optionalpdu]\n", $0
-  printf "Without options, %s keeps reading /dev/motmdm9, then\n", $0
+  printf "Without options, %s keeps reading /dev/gsmtty9, then\n", $0
   printf "copies SMS into %s if it exists, and then acks the SMS\n",
          $maildir
   exit 0
@@ -125,6 +125,9 @@ def handle_modem(fd, data)
     line.gsub! /\r$/, ''
     line.gsub! /\n$/, ''
 
+    # Remove leading U1234
+    line.gsub! /^U\d{4}/, ''
+
     # Skip empty line?
     if line.size == 0
       next
@@ -150,7 +153,7 @@ def handle_modem(fd, data)
     else
       # REVISIT: Why does Android use AT+CNMA=0,0 sometimes?
       printf "Acking received SMS\n"
-      fd.write "AT+GCNMA=1\n"
+      fd.write "U1234AT+GCNMA=1\n"
       fd.flush
     end
   end

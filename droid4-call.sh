@@ -13,7 +13,7 @@
 # And then have the following running in background to see modem
 # status notifications:
 #
-# $ cat /dev/motmdm1 &
+# $ cat /dev/gsmtty1 &
 #
 
 if [ "$1" == "" ]; then
@@ -23,22 +23,22 @@ fi
 
 # Use ,0 at the end for calling line id, ,1 to disable
 echo "Dialing number ${1}.."
-printf "ATD%s,0\r" "${1}" > /dev/motmdm1
+printf "U1234ATD%s,0\r" "${1}" > /dev/gsmtty1
 
 trap hangup_ctrl_c INT
 
 hangup_ctrl_c() {
 	echo "Hanging up.."
-	printf "ATH\r" > /dev/motmdm1
+	printf "U1234ATH\r" > /dev/gsmtty1
 	exit
 }
 
 echo "Press ctrl-c to hang up"
 while true; do
 	# List current calls
-	printf "AT+CLCC\r" > /dev/motmdm1
+	printf "U1234AT+CLCC\r" > /dev/gsmtty1
 
 	# Show network strength
-	printf "AT+RSSI?\r" > /dev/motmdm1
+	printf "U1234AT+RSSI?\r" > /dev/gsmtty1
 	sleep 2
 done

@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 # encoding: utf-8
 #
-# Send SMS messages in PDU format using droid 4 /dev/motmdm3 device
+# Send SMS messages in PDU format using droid 4 /dev/gsmtty3 device
 #
 # Needs gem install mail pdu_tools
 #
@@ -9,7 +9,7 @@
 require "mail"
 require "pdu_tools"
 
-$device = "motmdm3"
+$device = "gsmtty3"
 
 def print_help()
   printf "usage: echo message | %s phonenumber\n", $0
@@ -20,7 +20,7 @@ def send_pdu(pdu)
   devname = "/dev/" + $device
 
   # Must leave out the first hex byte and write as string
-  mot_fmt = sprintf "%s%c", pdu.pdu_hex[2..-1].downcase, 0x1a
+  mot_fmt = sprintf "%s", pdu.pdu_hex[2..-1].downcase
 
   printf "Sending Motorola GSM format PDU: %s\n", mot_fmt
 
@@ -30,9 +30,10 @@ def send_pdu(pdu)
   end
 
   fd = File.open devname, "r+"
-  fd.write "AT+GCMGS=\n"
+  fd.write "U1234AT+GCMGS=\n"
   fd.flush
-  fd.write mot_fmt
+  cont = sprintf "U%s%c", mot_fmt, 0x1a
+  fd.write cont
   fd.flush
 
   rs, ws, es = IO.select([fd], [fd], [fd], 10)

@@ -1,7 +1,7 @@
 Droid 4 SMS Tools
 
 Minimal tools for Droid 4 to send and read SMS in PDU format from the
-MDM6600 modem using /dev/motmdm3 and /dev/motmdm9 character devices with
+MDM6600 modem using /dev/gsmtty3 and /dev/gsmtty9 character devices with
 Ruby mail and pdu_tools gems. These tools currently do not work with CDMA
 networks because of different PDU format needed for sending and receiving
 messages.
